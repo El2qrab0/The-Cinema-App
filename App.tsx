@@ -28,28 +28,34 @@ const App: React.FC = () => {
   const t = translations[language];
   const isRTL = language === 'ar';
 
+  const hideSplash = () => {
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
+      splash.style.opacity = '0';
+      setTimeout(() => {
+        splash.style.display = 'none';
+      }, 500);
+    }
+  };
+
   useEffect(() => {
     const init = async () => {
+      // مؤقت أمان لإخفاء السكرين مهما حصل بعد 4 ثواني
+      const safetyTimer = setTimeout(hideSplash, 4000);
+
       const saved = localStorage.getItem('favorites');
       if (saved) setFavorites(JSON.parse(saved));
       
       try {
         const remote = await tmdb.getRemoteConfig();
-        // دمج السيرفرات القادمة من الـ API مع السيرفرات المحلية
         setDynamicServers({...LOCAL_SERVERS, ...remote});
       } catch (e) {
         console.error("Remote config failed", e);
       }
       
       await loadInitialData();
-      
-      const splash = document.getElementById('splash-screen');
-      if (splash) {
-        splash.style.opacity = '0';
-        setTimeout(() => {
-          splash.style.display = 'none';
-        }, 500);
-      }
+      hideSplash();
+      clearTimeout(safetyTimer);
     };
     init();
   }, [language]);
@@ -58,13 +64,13 @@ const App: React.FC = () => {
     setIsLoading(true);
     try {
       const [trendData, movieData, tvData, animeData, arabicData, koreanData, interData] = await Promise.all([
-        tmdb.getTrending(language),
-        tmdb.getPopularMovies(language, 1),
-        tmdb.getPopularTV(language, 1),
-        tmdb.getAnime(language, 1),
-        tmdb.getArabicContent(language),
-        tmdb.getKoreanContent(language),
-        tmdb.getInternationalMovies(language)
+        tmdb.getTrending(language).catch(() => []),
+        tmdb.getPopularMovies(language, 1).catch(() => []),
+        tmdb.getPopularTV(language, 1).catch(() => []),
+        tmdb.getAnime(language, 1).catch(() => []),
+        tmdb.getArabicContent(language).catch(() => []),
+        tmdb.getKoreanContent(language).catch(() => []),
+        tmdb.getInternationalMovies(language).catch(() => [])
       ]);
       setTrending(trendData);
       setMovies(movieData);
