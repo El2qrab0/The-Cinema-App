@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Movie } from '../types';
-import { translations, SERVERS, MONETIZATION_CONFIG } from '../constants';
+import { translations, SERVERS } from '../constants';
 import { tmdb } from '../services/tmdbService';
 import VerificationModal from './VerificationModal';
 
@@ -16,10 +16,10 @@ interface Props {
 
 type ServerKey = keyof typeof SERVERS;
 
-const PlayerModal: React.FC<Props> = ({ item, language, onClose, servers }) => {
+const PlayerModal: React.FC<Props> = ({ item, language, onClose }) => {
   const [season, setSeason] = useState(1);
   const [episode, setEpisode] = useState(1);
-  const [activeServer, setActiveServer] = useState<ServerKey>('vidlink'); // تغيير الافتراضي لـ VidLink
+  const [activeServer, setActiveServer] = useState<ServerKey>('vidsrc_in'); // السيرفر الجديد الافتراضي الأكثر استقراراً
   const [tvDetails, setTvDetails] = useState<any>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isVerified, setIsVerified] = useState(false);
@@ -54,55 +54,62 @@ const PlayerModal: React.FC<Props> = ({ item, language, onClose, servers }) => {
 
   if (!item) return null;
 
-  const needsVerification = (activeServer === 'vidlink' || activeServer === 'vidsrc_pro' || activeServer === 'embed_su' || activeServer === 'vidsrc_me') && !isVerified;
+  const needsVerification = !isVerified;
   const isLive = item.media_type === 'channel';
   const isTV = item.media_type === 'tv' || item.media_type === 'anime' || (tvDetails !== null);
   
   const buildUrl = (baseUrl: string, key: string) => {
     const id = item.id;
     if (isTV) {
-      if (key === 'vidsrc_xyz') return `${baseUrl}/tv?tmdb=${id}&sea=${season}&epi=${episode}`;
-      if (key === 'two_embed') return `${baseUrl}/tv?tmdb=${id}&s=${season}&e=${episode}`;
-      if (key === 'auto_embed') return `${baseUrl}?tmdb=${id}&s=${season}&e=${episode}`;
-      if (key === 'vidlink') return `${baseUrl}/tv/${id}/${season}/${episode}?primaryColor=ff0000`;
+      if (key === 'smashy') return `${baseUrl}?tmdb=${id}&s=${season}&e=${episode}`;
+      if (key === 'multi') return `${baseUrl}?video_id=${id}&tmdb=1&s=${season}&e=${episode}`;
+      if (key === 'vidlink') return `${baseUrl}/tv/${id}/${season}/${episode}?primaryColor=ff0000&autoplay=true`;
       return `${baseUrl}/tv/${id}/${season}/${episode}`;
     }
-    if (key === 'auto_embed') return `${baseUrl}?tmdb=${id}`;
-    if (key === 'vidlink') return `${baseUrl}/movie/${id}?primaryColor=ff0000`;
+    
+    // Movie URLs
+    if (key === 'smashy') return `${baseUrl}?tmdb=${id}`;
+    if (key === 'multi') return `${baseUrl}?video_id=${id}&tmdb=1`;
+    if (key === 'vidlink') return `${baseUrl}/movie/${id}?primaryColor=ff0000&autoplay=true`;
     return `${baseUrl}/movie/${id}`;
   };
 
-  const currentServerUrl = servers[activeServer]?.url || SERVERS[activeServer].url;
-  const playerUrl = isLive ? "" : buildUrl(currentServerUrl, activeServer);
+  const playerUrl = isLive ? "" : buildUrl(SERVERS[activeServer].url, activeServer);
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black animate-fade-in">
       {needsVerification && <VerificationModal language={language} onVerified={() => setIsVerified(true)} />}
       
       <div className="w-full h-full flex flex-col bg-black">
-        {/* Top Header */}
         <div className="flex items-center justify-between p-4 bg-zinc-900/50 backdrop-blur-xl border-b border-white/5">
           <button onClick={onClose} className="p-3 rounded-2xl bg-zinc-800 text-white active:scale-90 border border-white/5 shadow-xl">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
-          <div className="flex flex-col items-center flex-1 mx-4 overflow-hidden">
-             <h2 className="text-[12px] font-black truncate text-white uppercase tracking-wider">{item.title || item.name}</h2>
-             <span className="text-[8px] text-zinc-500 font-bold uppercase tracking-[0.2em]">{isLive ? t.live : (servers[activeServer]?.name || SERVERS[activeServer].name)}</span>
+          <div className="flex flex-col items-center flex-1 mx-4 overflow-hidden text-center">
+             <h2 className="text-[12px] font-black truncate text-white uppercase tracking-wider w-full">{item.title || item.name}</h2>
+             <span className="text-[8px] text-zinc-500 font-bold uppercase tracking-[0.2em]">{isLive ? t.live : SERVERS[activeServer].name}</span>
           </div>
           <button onClick={() => setRefreshKey(k => k + 1)} className="p-3 rounded-2xl bg-zinc-800 text-blue-400 active:scale-90 border border-white/5">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
           </button>
         </div>
 
-        {/* Video Player */}
         <div className="flex-1 bg-black relative">
-          {isLive ? <video ref={videoRef} className="w-full h-full object-contain" controls /> 
-          : <iframe key={`${playerUrl}-${refreshKey}`} src={playerUrl} className="w-full h-full" frameBorder="0" allowFullScreen allow="autoplay; fullscreen"></iframe>}
+          {isLive ? (
+            <video ref={videoRef} className="w-full h-full object-contain" controls autoPlay /> 
+          ) : (
+            <iframe 
+              key={`${playerUrl}-${refreshKey}`} 
+              src={playerUrl} 
+              className="w-full h-full bg-black" 
+              frameBorder="0" 
+              allowFullScreen 
+              allow="autoplay; fullscreen"
+            ></iframe>
+          )}
         </div>
 
-        {/* Controls Overlay */}
-        <div className="bg-zinc-950 border-t border-white/5 p-4 space-y-4 pb-8">
-          {/* Server Selector */}
+        <div className="bg-zinc-950 border-t border-white/5 p-4 space-y-4 pb-10">
           {!isLive && (
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2">
               <span className="text-[10px] font-black text-zinc-600 uppercase flex-shrink-0 px-2">{t.selectPlayer}:</span>
@@ -118,7 +125,6 @@ const PlayerModal: React.FC<Props> = ({ item, language, onClose, servers }) => {
             </div>
           )}
 
-          {/* Episode List */}
           {isTV && tvDetails && !isLive && (
             <div className="space-y-3">
               <div className="flex items-center justify-between px-2">
