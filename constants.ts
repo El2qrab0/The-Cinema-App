@@ -3,27 +3,25 @@ export const TMDB_API_KEY = 'f6401f5060b84efb82981a916623f6ab';
 export const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 export const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
-export const APP_VERSION = '8.0.0-Ultra';
+export const APP_VERSION = '11.0.0-Egypt-Power';
 
 export const MONETIZATION_CONFIG = {
-  // رابط التفعيل الخاص بك
   keyUrl: 'https://shrinkme.click/G9fuSI', 
-  
-  // الكود السري الذي يكتبه المستخدم (عدله من هنا يومياً)
-  dailySecret: 'GOLD-2025',
-  
+  dailySecret: 'GOLD-200/640*461*445455454455454545125',
   enabled: true
 };
 
 export const SERVERS = {
-  vidlink: { name: 'VidLink PRO', url: 'https://vidlink.pro/embed' },
-  vidsrc_pro: { name: 'Vidsrc PRO', url: 'https://vidsrc.pro/embed' },
-  vidsrc_me: { name: 'Vidsrc ME', url: 'https://vidsrc.me/embed' },
+  vidsrc_in: { name: 'Vidsrc Ultra', url: 'https://vidsrc.in/embed' },
+  vidsrc_xyz: { name: 'Vidsrc Fast', url: 'https://vidsrc.xyz/embed' },
   embed_su: { name: 'Embed SU', url: 'https://embed.su/embed' },
-  vidsrc_xyz: { name: 'Vidsrc XYZ', url: 'https://vidsrc.xyz/embed' },
-  vidsrc_in: { name: 'Vidsrc IN', url: 'https://vidsrc.in/embed' },
-  movieapi: { name: 'MovieAPI', url: 'https://moviesapi.club/embed' },
-  auto_embed: { name: 'AutoEmbed', url: 'https://player.vidsrc.nl/embed' }
+  smashy: { name: 'Smashy (No Ads)', url: 'https://embed.smashystream.com/playere.php' },
+  vidlink: { name: 'VidLink VIP', url: 'https://vidlink.pro/embed' },
+  vidsrc_pm: { name: 'Vidsrc PM', url: 'https://vidsrc.pm/embed' },
+  vidsrc_cc: { name: 'Vidsrc CC', url: 'https://vidsrc.cc/v2/embed/anime/ani21/1/sub?autoPlay=false' },
+    vidsrc_cc: { name: 'Vidsrc CC', url: 'https://vidsrc.cc/v2/embed/tv/tt0944947?autoPlay=false' },
+    vidsrc_cc: { name: 'Vidsrc CC', url: 'https://vidsrc.cc/v2/embed/movie/385687?autoPlay=false' },
+  multi: { name: 'Multi Source', url: 'https://multiembed.mov/directstream.php' }
 };
 
 export const BEIN_CHANNELS = [
