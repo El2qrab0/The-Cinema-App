@@ -1,0 +1,11 @@
+{
+  "name": "The Cinema",
+  "description": "Premium streaming for Movies, TV, and Anime. High-speed servers, No login, Multi-language support.",
+  "packageName": "com.thecinema.app",
+  "version": "2.2.1",
+  "author": "The Cinema Team",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
